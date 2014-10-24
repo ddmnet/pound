@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Pound is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -71,7 +71,7 @@ redirect_reply(BIO *const c, const char *url, const int code)
      */
     memset(safe_url, 0, MAXBUF);
     for(i = j = 0; i < MAXBUF && j < MAXBUF && url[i]; i++)
-        if(isalnum(url[i]) || url[i] == '_' || url[i] == '.' || url[i] == ':' || url[i] == '/'
+        if(isalnum(url[i]) || url[i] == '-' || url[i] == '_' || url[i] == '.' || url[i] == ':' || url[i] == '/'
         || url[i] == '?' || url[i] == '&' || url[i] == ';')
             safe_url[j++] = url[i];
         else {
@@ -1283,7 +1283,7 @@ do_http(thr_arg *arg)
             memset(buf, 0, sizeof(buf));
             if(!cur_backend->redir_req)
                 snprintf(buf, sizeof(buf) - 1, "%s%s", cur_backend->url, url);
-            else 
+            else
                 strncpy(buf, cur_backend->url, sizeof(buf) - 1);
             redirect_reply(cl, buf, cur_backend->be_type);
             addr2str(caddr, MAXBUF - 1, &from_host, 1);
