@@ -1,0 +1,12 @@
+$ cd Pound-2.7d
+$ ./configure --prefix=/usr --sysconfdir=/etc --with-owner=root --with-group=root
+$ make
+$ cp /etc/pound.cfg /etc/pound.cfg.bak
+$ yum erase Pound
+$ cp /etc/pound.cfg.bak /etc/pound.cfg
+$ ./install.sh
+    $ make install
+    $ cp pound-init.d /etc/init.d/pound
+    $ chkconfig --levels 2345 pound on
+    $ service pound restart
+
