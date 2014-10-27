@@ -1,5 +1,5 @@
 $ cd Pound-2.7d
-$ ./configure --prefix=/usr --sysconfdir=/etc/pound --with-owner=root --with-group=root
+$ ./configure --prefix=/usr --sysconfdir=/etc --with-owner=root --with-group=root
 $ make
 $ cp /etc/pound.cfg /etc/pound.cfg.bak
 $ yum erase Pound
