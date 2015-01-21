@@ -82,7 +82,11 @@ t_find(LHASH_OF(TABNODE) *const tab, char *const key)
     TABNODE t, *res;
 
     t.key = key;
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+    if((res = (TABNODE *)LHM_lh_retrieve(TABNODE, tab, &t)) != NULL) {
+#else
     if((res = (TABNODE *)lh_retrieve(tab, &t)) != NULL) {
+#endif
         res->last_acc = time(NULL);
         return res->content;
     }
@@ -756,14 +760,12 @@ get_host(char *const name, struct addrinfo *res, int ai_family)
     struct addrinfo hints;
     int             ret_val;
 
-fprintf(stderr, "get_host(%s, res, %d)\n", name, ai_family);
 #ifdef  HAVE_INET_NTOP
     memset (&hints, 0, sizeof(hints));
     hints.ai_family = ai_family;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_CANONNAME;
     if((ret_val = getaddrinfo(name, NULL, &hints, &chain)) == 0) {
-fprintf(stderr, "getaddrinfo OK\n");
 #ifdef _AIX
         ap = chain;
 #else
@@ -772,11 +774,9 @@ fprintf(stderr, "getaddrinfo OK\n");
                 break;
 #endif
         if(ap == NULL) {
-fprintf(stderr, "ap NULL\n");
             freeaddrinfo(chain);
             return EAI_NONAME;
         }
-fprintf(stderr, "ret OK\n");
         *res = *ap;
         if((res->ai_addr = (struct sockaddr *)malloc(ap->ai_addrlen)) == NULL) {
             freeaddrinfo(chain);
@@ -788,7 +788,6 @@ fprintf(stderr, "ret OK\n");
 #else
 #error  "Pound requires getaddrinfo()"
 #endif
-fprintf(stderr, "done\n");
     return ret_val;
 }
 
@@ -1450,8 +1449,9 @@ do_RSAgen(void)
 }
 
 #include    "dh512.h"
-#include    "dh1024.h"
 
+#if DH_LEN == 1024
+#include    "dh1024.h"
 static DH   *DH512_params, *DH1024_params;
 
 DH *
@@ -1459,6 +1459,16 @@ DH_tmp_callback(/* not used */SSL *s, /* not used */int is_export, int keylength
 {
     return keylength == 512? DH512_params: DH1024_params;
 }
+#else
+#include    "dh2048.h"
+static DH   *DH512_params, *DH2048_params;
+
+DH *
+DH_tmp_callback(/* not used */SSL *s, /* not used */int is_export, int keylength)
+{
+    return keylength == 512? DH512_params: DH2048_params;
+}
+#endif
 
 static time_t   last_RSA, last_rescale, last_alive, last_expire;
 
@@ -1490,7 +1500,11 @@ init_timer(void)
     pthread_mutex_init(&RSA_mut, NULL);
 
     DH512_params = get_dh512();
+#if DH_LEN == 1024
     DH1024_params = get_dh1024();
+#else
+    DH2048_params = get_dh2048();
+#endif
 
     return;
 }
