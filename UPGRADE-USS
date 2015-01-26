@@ -1,4 +1,4 @@
-$ cd Pound-2.7f-uss
+$ cd Pound-2.7-uss
 $ ./configure --prefix=/usr --sysconfdir=/etc --with-owner=root --with-group=root
 $ make
 $ cp /etc/pound.cfg /etc/pound.cfg.bak
